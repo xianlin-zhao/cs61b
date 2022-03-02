@@ -1,10 +1,10 @@
 public class LinkedListDeque<T> {
     private static class TNode<T> {
-        public T item;
-        public TNode prev;
-        public TNode next;
+        private T item;
+        private TNode prev;
+        private TNode next;
 
-        public TNode(T i, TNode p, TNode n){
+        TNode(T i, TNode p, TNode n) {
             item = i;
             prev = p;
             next = n;
@@ -44,54 +44,54 @@ public class LinkedListDeque<T> {
     }
 
     public void printDeque() {
-        for(TNode p = sentinel.next; p != sentinel; p = p.next){
+        for (TNode p = sentinel.next; p != sentinel; p = p.next) {
             System.out.print(p.item + " ");
         }
         System.out.println();
     }
 
     public T removeFirst() {
-        if(this.isEmpty()) {
+        if (this.isEmpty()) {
             return null;
         }
         TNode ans = sentinel.next;
         sentinel.next = ans.next;
         ans.next.prev = sentinel;
         size -= 1;
-        return (T)ans.item;
+        return (T) ans.item;
     }
 
     public T removeLast() {
-        if(this.isEmpty()) {
+        if (this.isEmpty()) {
             return null;
-        };
+        }
         TNode ans = sentinel.prev;
         sentinel.prev = ans.prev;
         ans.prev.next = sentinel;
         size -= 1;
-        return (T)ans.item;
+        return (T) ans.item;
     }
 
     public T get(int index) {
-        if(index >= size) {
+        if (index >= size) {
             return null;
         }
         TNode p = sentinel;
-        for(int i = 0; i <= index; i++) {
+        for (int i = 0; i <= index; i++) {
             p = p.next;
         }
-        return (T)p.item;
+        return (T) p.item;
     }
 
-    private T getRec(int index, TNode p){
-        if(index == 0) {
-            return (T)p.item;
+    private T getRec(int index, TNode p) {
+        if (index == 0) {
+            return (T) p.item;
         }
         return getRec(index - 1, p.next);
     }
 
     public T getRecursive(int index) {
-        if(index >= size) {
+        if (index >= size) {
             return null;
         }
         return getRec(index, sentinel.next);
