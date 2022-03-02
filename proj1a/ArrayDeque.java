@@ -67,7 +67,7 @@ public class ArrayDeque<T> {
 //        items[newid] = null;
         nextFirst = newid;
         size -= 1;
-        if (items.length >= 16 && (double)size / items.length < 0.25) {
+        if (items.length >= 16 && (double) size / items.length < 0.25) {
             resize((int) (items.length / 2));
         }
         return ans;
@@ -82,7 +82,7 @@ public class ArrayDeque<T> {
 //        items[newid] = null;
         nextLast = newid;
         size -= 1;
-        if (size >= 16 && (double)size / items.length < 0.25) {
+        if (size >= 16 && (double) size / items.length < 0.25) {
             resize((int) (items.length / 2));
         }
         return ans;
