@@ -64,7 +64,7 @@ public class ArrayDeque<T> {
         }
         int newid = (nextFirst + 1) % items.length;
         T ans = items[newid];
-        items[newid] = null;
+//        items[newid] = null;
         nextFirst = newid;
         size -= 1;
         if (items.length >= 16 && size / items.length < 0.25) {
@@ -79,7 +79,7 @@ public class ArrayDeque<T> {
         }
         int newid = (nextLast - 1 + items.length) % items.length;
         T ans = items[newid];
-        items[newid] = null;
+//        items[newid] = null;
         nextLast = newid;
         size -= 1;
         if (size >= 16 && size / items.length < 0.25) {
