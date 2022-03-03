@@ -15,6 +15,10 @@ public class GuitarString {
     public GuitarString(double frequency) {
         int capacity = (int) (Math.round(SR / frequency));
         buffer = new ArrayRingBuffer<Double>(capacity);
+        while (!buffer.isFull()) {
+            double r = Math.random() - 0.5;
+            buffer.enqueue(r);
+        }
     }
 
 

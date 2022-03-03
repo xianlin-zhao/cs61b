@@ -1,8 +1,8 @@
- package synthesizer;
+package synthesizer;
 
- import java.util.Iterator;
+import java.util.Iterator;
 
- public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
+public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
     /* Index for the next dequeue or peek. */
     private int first;            // index for the next dequeue or peek
     /* Index for the next enqueue. */
@@ -56,13 +56,16 @@
      * Return oldest item, but don't remove it.
      */
     public T peek() {
+        if (isEmpty()) {
+            throw new RuntimeException("Ring buffer underflow");
+        }
         return rb[first];
     }
 
     private class MyIterator implements Iterator<T> {
         private int ptr;
 
-        public MyIterator() {
+        MyIterator() {
             ptr = 0;
         }
 
@@ -75,6 +78,7 @@
         public T next() {
             T ans = rb[(first + ptr) % capacity];
             first = (first + 1) % capacity;
+            ptr += 1;
             return ans;
         }
     }
