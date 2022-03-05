@@ -21,7 +21,7 @@ public class Game {
     private int playerX;
     private int playerY;
     private String seedString = "";
-    private static final String PATH = "D:\\university\\self-learn\\cs61b\\cs61b\\proj2\\world.txt";
+    private static final String PATH = "./world.txt";
 
     private boolean setupMode = true;
     private boolean newGameMode = false;
