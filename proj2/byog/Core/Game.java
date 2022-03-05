@@ -169,7 +169,6 @@ public class Game {
             System.out.println(e);
             System.exit(1);
         }
-        rewritePlayerLocation();
     }
 
     private void rewritePlayerLocation() {
@@ -201,7 +200,7 @@ public class Game {
             System.exit(1);
         }
         setupMode = !setupMode;
-
+        rewritePlayerLocation();
     }
 
     private void processWelcome() {
