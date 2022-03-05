@@ -2,12 +2,185 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import byog.TileEngine.Tileset;
+import edu.princeton.cs.algs4.Transaction;
+
+import java.io.*;
+import java.util.Locale;
 
 public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
+    private TETile[][] world;
+    private int playerX;
+    private int playerY;
+    private String seedString = "";
+    private static final String PATH = "D:\\university\\self-learn\\cs61b\\cs61b\\proj2\\world.txt";
+
+    private boolean setupMode = true;
+    private boolean newGameMode = false;
+    private boolean quitMode = false;
+
+    private static final String NORTH = "w";
+    private static final String EAST = "d";
+    private static final String SOUTH = "s";
+    private static final String WEST = "a";
+
+    private void processInput(String input) {
+        // TODO
+        String first = Character.toString(input.charAt(0));
+        first = first.toLowerCase();
+        processInputString(first);
+        if (input.length() > 1) {
+            String rest = input.substring(1);
+            processInput(rest);
+        }
+    }
+
+    private void processInputString(String first) {
+        if (setupMode) {
+            switch (first) {
+                case "n":
+                    newGameMode = !newGameMode;
+                    break;
+                case "s":
+                    setupNewGame();
+                    break;
+                case "l":
+                    load();
+                    break;
+                case "q":
+                    System.exit(0);
+                    break;
+                default:
+                    Long.parseLong(first);
+                    seedString += first;
+                    break;
+            }
+        } else {
+            switch (first) {
+                case NORTH:
+                case EAST:
+                case SOUTH:
+                case WEST:
+                    move(first);
+                    break;
+                case ":":
+                    quitMode = !quitMode;
+                    break;
+                case "q":
+                    saveAndQuit();
+                    System.exit(0);
+                    break;
+                default:
+            }
+        }
+    }
+
+    private void move(String input) {
+        switch (input) {
+            case NORTH:
+                if (world[playerX][playerY + 1].equals(Tileset.FLOOR)) {
+                    world[playerX][playerY + 1] = Tileset.PLAYER;
+                    world[playerX][playerY] = Tileset.FLOOR;
+                    playerY += 1;
+                }
+                return;
+            case EAST:
+                if (world[playerX + 1][playerY].equals(Tileset.FLOOR)) {
+                    world[playerX + 1][playerY] = Tileset.PLAYER;
+                    world[playerX][playerY] = Tileset.FLOOR;
+                    playerX += 1;
+                }
+                return;
+            case SOUTH:
+                if (world[playerX][playerY - 1].equals(Tileset.FLOOR)) {
+                    world[playerX][playerY - 1] = Tileset.PLAYER;
+                    world[playerX][playerY] = Tileset.FLOOR;
+                    playerY -= 1;
+                }
+                return;
+            case WEST:
+                if (world[playerX - 1][playerY].equals(Tileset.FLOOR)) {
+                    world[playerX - 1][playerY] = Tileset.PLAYER;
+                    world[playerX][playerY] = Tileset.FLOOR;
+                    playerX -= 1;
+                }
+                return;
+            default:
+        }
+    }
+
+    private void setupNewGame() {
+        newGameMode = !newGameMode;
+        MapGenerator wg;
+        if (seedString.equals("")) {
+            wg = new MapGenerator(WIDTH, HEIGHT, 0);
+        } else {
+            long seed = Long.parseLong(seedString);
+            wg = new MapGenerator(WIDTH, HEIGHT, seed);
+        }
+        world = wg.mapGenerator();
+        playerX = wg.player.x;
+        playerY = wg.player.y;
+        setupMode = !setupMode;
+    }
+
+    private void saveAndQuit() {
+        if (!quitMode) {
+            return;
+        }
+        quitMode = !quitMode;
+
+        File f = new File(PATH);
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            FileOutputStream fos = new FileOutputStream(f);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(world);
+            oos.close();
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(1);
+        }
+        rewritePlayerLocation();
+    }
+
+    private void rewritePlayerLocation() {
+        for (int w = 0; w < WIDTH; w++) {
+            for (int h = 0; h < HEIGHT; h++) {
+                if (world[w][h].equals(Tileset.PLAYER)) {
+                    playerX = w;
+                    playerY = h;
+                }
+            }
+        }
+    }
+
+    private void load() {
+        File f = new File(PATH);
+        try {
+            FileInputStream fis = new FileInputStream(f);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            world = (TETile[][]) ois.readObject();
+            ois.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("No previously saved world found.");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(1);
+        } catch (ClassNotFoundException e) {
+            System.out.println("Class TETile[][] not found.");
+            System.exit(1);
+        }
+        setupMode = !setupMode;
+
+    }
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -32,7 +205,7 @@ public class Game {
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
 
-        TETile[][] finalWorldFrame = null;
-        return finalWorldFrame;
+        processInput(input);
+        return world;
     }
 }
