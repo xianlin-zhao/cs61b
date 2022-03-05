@@ -4,15 +4,19 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import edu.princeton.cs.algs4.Transaction;
+import edu.princeton.cs.introcs.StdDraw;
 
+import java.awt.*;
 import java.io.*;
 import java.util.Locale;
 
 public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
+    private static final int WIDTH = 80;
+    private static final int HEIGHT = 50;
+    private static final int ENTRYX = 40;
+    private static final int ENTRYY = 5;
     private TETile[][] world;
     private int playerX;
     private int playerY;
@@ -28,8 +32,13 @@ public class Game {
     private static final String SOUTH = "s";
     private static final String WEST = "a";
 
+
+
     private void processInput(String input) {
-        // TODO
+        if (input == null) {
+            System.out.println("No input given.");
+            System.exit(0);
+        }
         String first = Character.toString(input.charAt(0));
         first = first.toLowerCase();
         processInputString(first);
@@ -55,8 +64,14 @@ public class Game {
                     System.exit(0);
                     break;
                 default:
-                    Long.parseLong(first);
-                    seedString += first;
+                    try {
+                        Long.parseLong(first);
+                        seedString += first;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input given: " + first);
+                        System.exit(0);
+                    }
+
                     break;
             }
         } else {
@@ -114,6 +129,13 @@ public class Game {
     }
 
     private void setupNewGame() {
+        if (!newGameMode) {
+            String error = "Input string " + "\"S\" given, but no game has been initialized.\n"
+                    + "Please initialize game first by input string \"N\" and following random seed"
+                    + "numbers";
+            System.out.println(error);
+            System.exit(0);
+        }
         newGameMode = !newGameMode;
         MapGenerator wg;
         if (seedString.equals("")) {
@@ -182,10 +204,85 @@ public class Game {
 
     }
 
+    private void processWelcome() {
+        StdDraw.setCanvasSize();
+        StdDraw.clear(Color.BLACK);
+        StdDraw.enableDoubleBuffering();
+
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char key = StdDraw.nextKeyTyped();
+                String typed = Character.toString(key);
+                processInput(typed);
+            }
+            renderWelcomeBoard();
+            if (!setupMode) {
+                break;
+            }
+        }
+        processGame();
+    }
+
+    private void renderWelcomeBoard() {
+        StdDraw.clear(StdDraw.BLACK);
+        StdDraw.setPenColor(StdDraw.WHITE);
+        StdDraw.setFont(new Font("Arial", Font.BOLD, 40));
+        StdDraw.text(0.5, 0.8, "CS61B: BYoG");
+
+        StdDraw.setFont(new Font("Arial", Font.PLAIN, 20));
+        StdDraw.text(0.5, 0.5, "New Game: N");
+        StdDraw.text(0.5, 0.45, "Load Game: L");
+        StdDraw.text(0.5, 0.4, "Quit: Q");
+
+        if (newGameMode) {
+            StdDraw.text(0.5, 0.25, "Seed: " + seedString);
+            StdDraw.text(0.5, 0.225, "(Press S to start the game)");
+        }
+
+        StdDraw.show();
+        StdDraw.pause(100);
+    }
+
+    private void processGame() {
+        ter.initialize(WIDTH, HEIGHT);
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char key = StdDraw.nextKeyTyped();
+                String typed = Character.toString(key);
+                processInput(typed);
+            }
+            renderGame();
+        }
+    }
+
+    private void renderGame() {
+        renderWorld();
+        showTileOnHover();
+        StdDraw.pause(10);
+    }
+
+    private void renderWorld() {
+        StdDraw.setFont();
+        StdDraw.setPenColor();
+        ter.renderFrame(world);
+    }
+
+    private void showTileOnHover() {
+        int mouseX = (int) StdDraw.mouseX();
+        int mouseY = (int) StdDraw.mouseY();
+        TETile mouseTile = world[mouseX][mouseY];
+
+        StdDraw.setFont(new Font("Arial", Font.PLAIN, 15));
+        StdDraw.setPenColor(StdDraw.WHITE);
+        StdDraw.textLeft(1, HEIGHT - 1, mouseTile.description());
+        StdDraw.show();
+    }
+
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+        processWelcome();
     }
 
     /**
@@ -207,5 +304,10 @@ public class Game {
 
         processInput(input);
         return world;
+    }
+
+    public static void main(String[] args) {
+        Game game = new Game();
+        game.playWithKeyboard();
     }
 }
