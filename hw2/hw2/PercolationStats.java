@@ -8,6 +8,9 @@ public class PercolationStats {
     private double thresholds[];
 
     public PercolationStats(int N, int T, PercolationFactory pf) {
+        if (N <= 0 || T <= 0) {
+            throw new IllegalArgumentException();
+        }
         this.N = N;
         this.T = T;
         thresholds = new double[T];
