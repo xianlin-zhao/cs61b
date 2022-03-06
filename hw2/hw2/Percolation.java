@@ -40,12 +40,11 @@ public class Percolation {
         grids[id] = id;
 
         int[][] direction = {
-                {-1, 0},
                 {1, 0},
                 {0, -1},
                 {0, 1}
         };
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             int newX = row + direction[i][0];
             int newY = col + direction[i][1];
             if (newX < 0 || newX >= N || newY < 0 || newY >= N) {
