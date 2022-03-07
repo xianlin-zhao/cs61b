@@ -29,7 +29,7 @@ public class Percolation {
 
     public void open(int row, int col) {
         if (row < 0 || row >= N || col < 0 || col >= N) {
-            throw new IllegalArgumentException();
+            throw new IndexOutOfBoundsException();
         };
         if (isOpen(row, col)) {
             return;
@@ -67,7 +67,7 @@ public class Percolation {
 
     public boolean isOpen(int row, int col) {
         if (row < 0 || row >= N || col < 0 || col >= N) {
-            throw new IllegalArgumentException();
+            throw new IndexOutOfBoundsException();
         };
         int id = twoToNo(row, col);
         return grids[id] >= 0;
@@ -75,7 +75,7 @@ public class Percolation {
 
     public boolean isFull(int row, int col) {
         if (row < 0 || row >= N || col < 0 || col >= N) {
-            throw new IllegalArgumentException();
+            throw new IndexOutOfBoundsException();
         };
         int id = twoToNo(row, col);
         return wqu2.connected(N * N, id);
