@@ -15,19 +15,15 @@ public class PercolationStats {
         this.T = T;
         thresholds = new double[T];
         for (int i = 0; i < T; i++) {
-            int num = 0;
+            int randX = 0;
+            int randY = 0;
             Percolation per = pf.make(N);
             while (!per.percolates()) {
-                int randX = edu.princeton.cs.introcs.StdRandom.uniform(0, N);
-                int randY = edu.princeton.cs.introcs.StdRandom.uniform(0, N);
-                while (per.isOpen(randX, randY)) {
-                    randX = edu.princeton.cs.introcs.StdRandom.uniform(0, N);
-                    randY = edu.princeton.cs.introcs.StdRandom.uniform(0, N);
-                }
+                randX = edu.princeton.cs.introcs.StdRandom.uniform(0, N);
+                randY = edu.princeton.cs.introcs.StdRandom.uniform(0, N);
                 per.open(randX, randY);
-                num++;
             }
-            thresholds[i] = (double) num / (N * N);
+            thresholds[i] = per.numberOfOpenSites();
         }
         mu = edu.princeton.cs.introcs.StdStats.mean(thresholds);
         dev = edu.princeton.cs.introcs.StdStats.stddev(thresholds);

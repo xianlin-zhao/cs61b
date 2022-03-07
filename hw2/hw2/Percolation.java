@@ -31,6 +31,9 @@ public class Percolation {
         if (row < 0 || row >= N || col < 0 || col >= N) {
             throw new IllegalArgumentException();
         };
+        if (isOpen(row, col)) {
+            return;
+        }
         int id = twoToNo(row, col);
         if (row == 0) {
             wqu.union(N * N, id);
