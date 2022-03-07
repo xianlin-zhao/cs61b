@@ -23,7 +23,7 @@ public class PercolationStats {
                 randY = edu.princeton.cs.introcs.StdRandom.uniform(0, N);
                 per.open(randX, randY);
             }
-            thresholds[i] = per.numberOfOpenSites();
+            thresholds[i] = per.numberOfOpenSites() / (N * N);
         }
         mu = edu.princeton.cs.introcs.StdStats.mean(thresholds);
         dev = edu.princeton.cs.introcs.StdStats.stddev(thresholds);
