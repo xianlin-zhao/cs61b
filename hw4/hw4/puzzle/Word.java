@@ -1,5 +1,7 @@
 package hw4.puzzle;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -10,6 +12,7 @@ public class Word implements WorldState {
     private static final String WORDFILE = "input/words10000.txt";
     private final String word;
     private final String goal;
+//    private static Map<String, Integer> mp = new HashMap<>();
 
     /**
      * Reads the wordfile specified by the wordfile variable.
@@ -51,6 +54,9 @@ public class Word implements WorldState {
     private static int editDistance(String a, String b) {
         a = a.toLowerCase();
         b = b.toLowerCase();
+//        if (mp.containsKey(b)) {
+//            return mp.get(b);
+//        }
         // i == 0
         int[] costs = new int[b.length() + 1];
         for (int j = 0; j < costs.length; j++) {
@@ -67,6 +73,7 @@ public class Word implements WorldState {
                 costs[j] = cj;
             }
         }
+//        mp.put(b, costs[b.length()]);
         return costs[b.length()];
     }
 
