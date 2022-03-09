@@ -8,8 +8,8 @@ import java.util.List;
 
 public class Solver {
     private WorldState iState;
-    int ans;
-    List<WorldState> seq;
+    private int ans;
+    private List<WorldState> seq;
 
     public Solver(WorldState initial) {
         iState = initial;
