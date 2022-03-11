@@ -36,10 +36,10 @@ public class SeamCarver {
             up = picture.get(x, (y - 1 + height) % height);
             down = picture.get(x, (y + 1) % height);
         } else {
-            left = picture.get(x, (y - 1 + height) % height);
-            right = picture.get(x, (y + 1) % height);
-            up = picture.get((x - 1 + width) % width, y);
-            down = picture.get((x + 1) % width, y);
+            left = picture.get(x, (y - 1 + width) % width);
+            right = picture.get(x, (y + 1) % width);
+            up = picture.get((x - 1 + height) % height, y);
+            down = picture.get((x + 1) % height, y);
         }
         rx = left.getRed() - right.getRed();
         gx = left.getGreen() - right.getGreen();
