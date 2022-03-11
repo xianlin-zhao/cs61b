@@ -9,30 +9,38 @@ public class SeamCarver {
     private int height;
 
     public SeamCarver(Picture picture) {
-        this.picture = picture;
+        this.picture = new Picture(picture);
         isVertical = true;
         width = picture.width();
         height = picture.height();
     }
 
     public Picture picture() {
-        return picture;
+        return new Picture(picture);
     }
 
     public int width() {
-        return picture.width();
+        return width;
     }
 
     public int height() {
-        return picture.height();
+        return height;
     }
 
     public double energy(int x, int y) {
         double rx, gx, bx, ry, gy, by;
-        Color left = picture.get((x - 1 + width) % width, y);
-        Color right = picture.get((x + 1) % width, y);
-        Color up = picture.get(x, (y - 1 + height) % height);
-        Color down = picture.get(x, (y + 1) % height);
+        Color left, right, up, down;
+        if (isVertical) {
+            left = picture.get((x - 1 + width) % width, y);
+            right = picture.get((x + 1) % width, y);
+            up = picture.get(x, (y - 1 + height) % height);
+            down = picture.get(x, (y + 1) % height);
+        } else {
+            left = picture.get(x, (y - 1 + height) % height);
+            right = picture.get(x, (y + 1) % height);
+            up = picture.get((x - 1 + width) % width, y);
+            down = picture.get((x + 1) % width, y);
+        }
         rx = left.getRed() - right.getRed();
         gx = left.getGreen() - right.getGreen();
         bx = left.getBlue() - right.getBlue();
