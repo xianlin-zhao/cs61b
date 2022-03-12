@@ -7,6 +7,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
@@ -18,6 +20,50 @@ import java.util.ArrayList;
  * @author Alan Yao, Josh Hug
  */
 public class GraphDB {
+    private final Map<Long, Node> vertices;
+    private final Map<Long, ArrayList<Edge>> adjEdge;
+    private final Map<Long, ArrayList<Long>> adjNode;
+
+    public static class Node {
+        private final Long id;
+        private final double lon;
+        private final double lat;
+        private String name;
+
+        public Node(Long id, double lon, double lat) {
+            this.id = id;
+            this.lon = lon;
+            this.lat = lat;
+            name = null;
+        }
+
+        public double getLon() {
+            return lon;
+        }
+
+        public double getLat() {
+            return lat;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public class Edge {
+        private Long v;
+        private Long w;
+        private double weight;
+        private String name;
+
+        public Edge(Long v, Long w, double weight, String name) {
+            this.v = v;
+            this.w = w;
+            this.weight = weight;
+            this.name = name;
+        }
+    }
+
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
 
@@ -27,6 +73,10 @@ public class GraphDB {
      * @param dbPath Path to the XML file to be parsed.
      */
     public GraphDB(String dbPath) {
+        vertices = new HashMap<>();
+        adjEdge = new HashMap<>();
+        adjNode = new HashMap<>();
+
         try {
             File inputFile = new File(dbPath);
             FileInputStream inputStream = new FileInputStream(inputFile);
@@ -57,7 +107,17 @@ public class GraphDB {
      *  we can reasonably assume this since typically roads are connected.
      */
     private void clean() {
-        // TODO: Your code here.
+        ArrayList<Long> needRemove = new ArrayList<>();
+        for (Long id : vertices()) {
+            ArrayList<Long> adj = adjNode.get(id);
+            if (adj.isEmpty()) {
+                needRemove.add(id);
+            }
+        }
+        for (Long id : needRemove) {
+            vertices.remove(id);
+            adjNode.remove(id);
+        }
     }
 
     /**
@@ -66,7 +126,7 @@ public class GraphDB {
      */
     Iterable<Long> vertices() {
         //YOUR CODE HERE, this currently returns only an empty list.
-        return new ArrayList<Long>();
+        return vertices.keySet();
     }
 
     /**
@@ -74,8 +134,8 @@ public class GraphDB {
      * @param v The id of the vertex we are looking adjacent to.
      * @return An iterable of the ids of the neighbors of v.
      */
-    Iterable<Long> adjacent(long v) {
-        return null;
+    Iterable<Long> adjacent(Long v) {
+        return adjNode.get(v);
     }
 
     /**
@@ -136,7 +196,16 @@ public class GraphDB {
      * @return The id of the node in the graph closest to the target.
      */
     long closest(double lon, double lat) {
-        return 0;
+        Long ans = Long.valueOf(0);
+        double nowmin = Double.MAX_VALUE;
+        for (Long id : vertices()) {
+            double now = distance(lon(id), lat(id), lon, lat);
+            if (now < nowmin) {
+                nowmin = now;
+                ans = id;
+            }
+        }
+        return ans;
     }
 
     /**
@@ -145,7 +214,8 @@ public class GraphDB {
      * @return The longitude of the vertex.
      */
     double lon(long v) {
-        return 0;
+        Node now = vertices.get(v);
+        return now.getLon();
     }
 
     /**
@@ -154,6 +224,32 @@ public class GraphDB {
      * @return The latitude of the vertex.
      */
     double lat(long v) {
-        return 0;
+        Node now = vertices.get(v);
+        return now.getLat();
+    }
+
+    void addName(String name, Long id) {
+        Node now = vertices.get(id);
+        now.setName(name);
+    }
+
+    void addNode(Long id, double lon, double lat) {
+        Node now = new Node(id, lon, lat);
+        vertices.put(id, now);
+        adjNode.put(id, new ArrayList<>());
+        adjEdge.put(id, new ArrayList<>());
+    }
+
+    void addEdge(Long v, Long w, String name) {
+        adjNode.get(v).add(w);
+        adjNode.get(w).add(v);
+        adjEdge.get(v).add(new Edge(v, w, distance(v, w), name));
+        adjEdge.get(w).add(new Edge(v, w, distance(v, w), name));
+    }
+
+    void addWay(String name, ArrayList<Long> way) {
+        for (int i = 1; i < way.size(); i++) {
+            addEdge(way.get(i - 1), way.get(i), name);
+        }
     }
 }
