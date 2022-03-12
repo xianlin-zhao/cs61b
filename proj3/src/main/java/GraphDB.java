@@ -20,9 +20,9 @@ import java.util.Map;
  * @author Alan Yao, Josh Hug
  */
 public class GraphDB {
-    private final Map<Long, Node> vertices;
-    private final Map<Long, ArrayList<Edge>> adjEdge;
-    private final Map<Long, ArrayList<Long>> adjNode;
+    public Map<Long, Node> vertices;
+    private Map<Long, ArrayList<Edge>> adjEdge;
+    private Map<Long, ArrayList<Long>> adjNode;
 
     public static class Node {
         private final Long id;
@@ -117,6 +117,7 @@ public class GraphDB {
         for (Long id : needRemove) {
             vertices.remove(id);
             adjNode.remove(id);
+//            adjEdge.remove(id);
         }
     }
 

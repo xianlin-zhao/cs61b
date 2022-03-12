@@ -1,5 +1,5 @@
-import java.util.List;
-import java.util.Objects;
+import javax.swing.text.StyledEditorKit;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +12,49 @@ import java.util.regex.Pattern;
  * down to the priority you use to order your vertices.
  */
 public class Router {
+    private static Long source;
+    private static Long destination;
+    private static GraphDB graph;
+
+    public static class SearchNode implements Comparable<SearchNode> {
+        public Long id;
+        public SearchNode before;
+        public double distance;
+        public double priority;
+
+        public SearchNode (Long id, SearchNode before, double fromS) {
+            this.id = id;
+            this.before = before;
+            this.distance = fromS;
+            this.priority = fromS + graph.distance(id, destination);
+        }
+        @Override
+        public int compareTo(SearchNode o) {
+            if (this.priority < o.priority) {
+                return -1;
+            }
+            if (this.priority > o.priority) {
+                return 1;
+            }
+            return 0;
+        }
+    }
+
+    private static double distanceToDest(Long id) {
+        GraphDB.Node v = graph.vertices.get(id);
+        GraphDB.Node dest = graph.vertices.get(destination);
+        return GraphDB.distance(v.getLon(), v.getLat(), dest.getLon(), dest.getLat());
+    }
+
+    private static double distance(GraphDB g, Long id1, Long id2) {
+        GraphDB.Node v1 = g.vertices.get(id1);
+        GraphDB.Node v2 = g.vertices.get(id2);
+        return GraphDB.distance(v1.getLon(), v1.getLat(), v2.getLon(), v2.getLat());
+    }
+
+    private static boolean isGoal(SearchNode v) {
+        return distanceToDest(v.id) == 0;
+    }
     /**
      * Return a List of longs representing the shortest path from the node
      * closest to a start location and the node closest to the destination
@@ -25,7 +68,31 @@ public class Router {
      */
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+        graph = g;
+        source = graph.closest(stlon, stlat);
+        destination = graph.closest(destlon, destlat);
+        Map<Long, Boolean> marked = new HashMap<>();
+
+        PriorityQueue<SearchNode> pq = new PriorityQueue<>();
+        pq.offer(new SearchNode(source, null, 0));
+        while (!pq.isEmpty() && !isGoal(pq.peek())) {
+            SearchNode now = pq.poll();
+            marked.put(now.id, true);
+            for (Long adj : graph.adjacent(now.id)) {
+                if (!marked.containsKey(adj) || marked.get(adj) == false) {
+                    pq.offer(new SearchNode(adj, now, now.distance + distance(graph, adj, now.id)));
+                }
+            }
+        }
+
+        SearchNode track = pq.peek();
+        List<Long> ans = new ArrayList<>();
+        while (track != null) {
+            ans.add(track.id);
+            track = track.before;
+        }
+        Collections.reverse(ans);
+        return ans;
     }
 
     /**
