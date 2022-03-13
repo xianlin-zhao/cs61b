@@ -95,6 +95,42 @@ public class Router {
         return ans;
     }
 
+    private static ArrayList<GraphDB.Edge> routeToEdge(GraphDB g, List<Long> route) {
+        ArrayList<GraphDB.Edge> ans = new ArrayList<>();
+        for (int i = 1; i < route.size(); i++) {
+            Long nowNode = route.get(i - 1);
+            Long aftNode = route.get(i);
+            for (GraphDB.Edge e : g.adjEdge.get(nowNode)) {
+                Long v = e.getV();
+                Long w = e.getW();
+                if (v.equals(aftNode) || w.equals(aftNode)) {
+                    ans.add(e);
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+
+    private static int calcDirection(double pre, double now) {
+        double relative = now - pre;
+        double absRelative = Math.abs(relative);
+        if (absRelative > 180) {
+            absRelative = 360 - absRelative;
+            relative *= -1;
+        }
+        if (absRelative <= 15) {
+            return NavigationDirection.STRAIGHT;
+        }
+        if (absRelative <= 30) {
+            return relative < 0 ? NavigationDirection.SLIGHT_LEFT : NavigationDirection.SLIGHT_RIGHT;
+        }
+        if (absRelative <= 100) {
+            return relative < 0 ? NavigationDirection.LEFT : NavigationDirection.RIGHT;
+        }
+        return relative < 0 ? NavigationDirection.SHARP_LEFT : NavigationDirection.SHARP_RIGHT;
+    }
+
     /**
      * Create the list of directions corresponding to a route on the graph.
      * @param g The graph to use.
@@ -104,7 +140,42 @@ public class Router {
      * route.
      */
     public static List<NavigationDirection> routeDirections(GraphDB g, List<Long> route) {
-        return null; // FIXME
+        List<NavigationDirection> ans = new ArrayList<>();
+        int direction = NavigationDirection.START;
+        String name = null;
+        double distance = 0;
+
+        ArrayList<GraphDB.Edge> edges = routeToEdge(g, route);
+        if (edges.size() == 1) {
+            name = edges.get(0).getName();
+            distance = edges.get(0).getWeight();
+            ans.add(new NavigationDirection(direction, name, distance));
+            return ans;
+        }
+        for (int i = 1; i < edges.size(); i++) {
+            GraphDB.Edge preEdge = edges.get(i - 1);
+            GraphDB.Edge aftEdge = edges.get(i);
+            Long preNode = route.get(i - 1);
+            Long nowNode = route.get(i);
+            Long aftNode = route.get(i + 1);
+
+            String preName = preEdge.getName();
+            String aftName = aftEdge.getName();
+
+            distance += preEdge.getWeight();
+            if (!preName.equals(aftName)) {
+                double preBearing = g.bearing(preNode, nowNode);
+                double aftBearing = g.bearing(nowNode, aftNode);
+                ans.add(new NavigationDirection(direction, preName, distance));
+                distance = 0;
+                direction = calcDirection(preBearing, aftBearing);
+            }
+            if (i == edges.size() - 1) {
+                distance += aftEdge.getWeight();
+                ans.add(new NavigationDirection(direction, aftName, distance));
+            }
+        }
+        return ans;
     }
 
 
@@ -159,6 +230,12 @@ public class Router {
             this.direction = STRAIGHT;
             this.way = UNKNOWN_ROAD;
             this.distance = 0.0;
+        }
+
+        public NavigationDirection(int dir, String name, double dis) {
+            direction = dir;
+            way = name;
+            distance = dis;
         }
 
         public String toString() {

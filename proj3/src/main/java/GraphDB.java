@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class GraphDB {
     public Map<Long, Node> vertices;
-    private Map<Long, ArrayList<Edge>> adjEdge;
+    public Map<Long, ArrayList<Edge>> adjEdge;
     private Map<Long, ArrayList<Long>> adjNode;
 
     public static class Node {
@@ -61,6 +61,22 @@ public class GraphDB {
             this.w = w;
             this.weight = weight;
             this.name = name;
+        }
+
+        public Long getV() {
+            return v;
+        }
+
+        public Long getW() {
+            return w;
+        }
+
+        public double getWeight() {
+            return weight;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 
